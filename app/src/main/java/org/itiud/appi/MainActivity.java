@@ -19,6 +19,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.nio.file.FileVisitResult;
 import java.util.Arrays;
@@ -28,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String EMAIL = "email";
     private LoginButton loginButton;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private FirebaseUser user ;
+    private FirebaseDatabase database ;
+    private DatabaseReference playeR;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         callbackManager = CallbackManager.Factory.create();
-
+        database = FirebaseDatabase.getInstance();
 
 
         loginButton = (LoginButton) findViewById(R.id.login_button);
@@ -77,11 +82,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            //Log.d(TAG, "signInWithCredential:success");
+
+                            user = mAuth.getCurrentUser();
+                            playeR = database.getReference("player/" +user.getDisplayName());
+                            playeR.setValue("");
                             openProfile();
-                           // FirebaseUser user = mAuth.getCurrentUser();
-                           // updateUI(user);
+
                         } else {
                             // If sign in fails, display a message to the user.
                            // Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -96,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openProfile() {
+
   startActivity(new Intent(this, inicio.class));
   finish();
     }
