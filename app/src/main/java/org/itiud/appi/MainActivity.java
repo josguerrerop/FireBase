@@ -79,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             //Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            openProfile();
+                           // FirebaseUser user = mAuth.getCurrentUser();
                            // updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -92,5 +93,10 @@ public class MainActivity extends AppCompatActivity {
                         // ...
                     }
                 });
+    }
+
+    private void openProfile() {
+  startActivity(new Intent(this, inicio.class));
+  finish();
     }
 }
