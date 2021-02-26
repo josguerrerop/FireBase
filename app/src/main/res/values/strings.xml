@@ -3,4 +3,5 @@
     <string name="facebook_app_id">280046860446854</string>
     <string name="fb_login_protocol_scheme">fb280046860446854</string>
     <string name="button">Button</string>
+    <string name="play">p</string>
 </resources>
