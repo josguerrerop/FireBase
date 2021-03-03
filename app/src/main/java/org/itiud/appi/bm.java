@@ -222,6 +222,7 @@ public class bm extends AppCompatActivity {
                                         playing();
 
                                     } else {
+
                                         Toast.makeText(getApplicationContext(), "YOU LOSE", Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
