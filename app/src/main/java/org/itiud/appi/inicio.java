@@ -1,4 +1,4 @@
-package org.itiud.appi;
+    package org.itiud.appi;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,6 +33,7 @@ public class inicio extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference roomRef;
     private DatabaseReference roomsRef;
+    private DatabaseReference PuntajeRef;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     @Override
@@ -56,6 +57,8 @@ public class inicio extends AppCompatActivity {
                 roomRef = database.getReference("rooms/" +nombSala + "/jugador1");
                 AddRoomEventListener();
                 roomRef.setValue(nombre);
+                PuntajeRef= database.getReference("rooms/" + nombSala + "/puntaje2");
+                PuntajeRef.setValue("guest : 0");
             }
         });
 

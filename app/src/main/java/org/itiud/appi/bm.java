@@ -40,9 +40,13 @@ public class bm extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference messageRef;
     DatabaseReference PuntajeRef;
+    DatabaseReference Puntajes;
     private FirebaseUser user ;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private boolean move;
+    public TextView Phost;
+    public TextView Text2;
+    String p = "0";
     //
     int width =0;
     int height=0;
@@ -52,6 +56,8 @@ public class bm extends AppCompatActivity {
     private  Celda[][] celda  ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bm);
         button=findViewById(R.id.button2);
@@ -60,6 +66,8 @@ public class bm extends AppCompatActivity {
         user = mAuth.getCurrentUser();
         nombre = user.getDisplayName();
         Bundle extras = getIntent().getExtras();
+        Phost = findViewById(R.id.textView);
+        Text2 = findViewById(R.id.textView2);
         ///
         this.gridLayout = findViewById(R.id.Grid);
         Display display = getWindowManager().getDefaultDisplay();
@@ -67,11 +75,14 @@ public class bm extends AppCompatActivity {
         display.getSize(size);
         width =size.x;
         height=size.y;
+        this.Text2.setX(width-300);
         this.button.setX(width/2-78);
         this.button.setY(height-247);
         this.button.setBackgroundColor(Color.BLACK);
         this.button.setTextColor(Color.WHITE);
         move = false;
+
+
         ///
         if(extras!=null){
             roomName= extras.getString("roomName");
@@ -86,27 +97,53 @@ public class bm extends AppCompatActivity {
         messageRef= database.getReference("rooms/" + roomName + "/message");
         message = role + ":Poked!";
         messageRef.setValue(message);
-        AddRoomEventListener();
+        AddRoomEventListener(true);
+
+        Puntajes = database.getReference().child("rooms/" + roomName);
+        Puntajes.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(role=="host"){
+                String h = snapshot.child("puntaje1").getValue(String.class).replace("host","Tu puntaje :");
+                Phost.setText(h);
+                 p = snapshot.child("puntaje2").getValue(String.class).replace("guest","Puntaje oponente :");
+                 Text2.setText(p);
+                }else{
+                    String h = snapshot.child("puntaje2").getValue(String.class).replace("guest","Tu puntaje :");
+                    Phost.setText(h);
+                    String p = snapshot.child("puntaje1").getValue(String.class).replace("host","Puntaje oponente :");
+                    Text2.setText(p);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
     }
 
-    private void AddRoomEventListener() {
 
+
+    private void AddRoomEventListener(boolean m) {
         messageRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(role.equals("host")){
                     if(snapshot.getValue(String.class).contains("guest:")){
                        move=true;
-                        Toast.makeText(bm.this, "Tu turno",Toast.LENGTH_SHORT).show();
-
+                       if(m) {
+                           Toast.makeText(bm.this, "Tu turno", Toast.LENGTH_SHORT).show();
+                       }
 
                     }
                 }else{
                     if(snapshot.getValue(String.class).contains("host:")){
                       move = true;
-                        Toast.makeText(bm.this, "Tu turno",Toast.LENGTH_SHORT).show();
-
+                      if(m) {
+                          Toast.makeText(bm.this, "Tu turno", Toast.LENGTH_SHORT).show();
+                      }
                     }
                 }
 
@@ -118,16 +155,20 @@ public class bm extends AppCompatActivity {
         });
     }
 
+
+
     private void dothis(){
         if(role.equals("host")){
             PuntajeRef= database.getReference("rooms/" + roomName + "/puntaje1");
             message = role + " "+  this.bm.GoodCells();
             PuntajeRef.setValue(message);
+
         }else{
             PuntajeRef= database.getReference("rooms/" + roomName + "/puntaje2");
             message = role + " "+  this.bm.GoodCells();
             PuntajeRef.setValue(message);
         }
+
     }
 
     public void playing(){
@@ -177,8 +218,8 @@ public class bm extends AppCompatActivity {
                                         move=false;
                                         message = role + ":Poked";
                                         messageRef.setValue(message);
-                                      playing();
-                                        AddRoomEventListener();
+                                        AddRoomEventListener(false);
+                                        playing();
 
                                     } else {
                                         Toast.makeText(getApplicationContext(), "YOU LOSE", Toast.LENGTH_SHORT).show();

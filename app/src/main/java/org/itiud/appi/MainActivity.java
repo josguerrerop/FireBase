@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -88,9 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
                         } else {
                             // If sign in fails, display a message to the user.
-                           // Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            // Log.w(TAG, "signInWithCredential:failure", task.getException());
                             //Toast.makeText(FacebookLoginActivity.this, "Authentication failed.",
-                              //      Toast.LENGTH_SHORT).show();
+                            // Toast.LENGTH_SHORT).show();
                             //updateUI(null);
                         }
 
@@ -103,5 +105,13 @@ public class MainActivity extends AppCompatActivity {
 
   startActivity(new Intent(this, inicio.class));
   finish();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(mAuth.getCurrentUser()!=null){
+            openProfile();
+        }
     }
 }
