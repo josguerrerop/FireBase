@@ -59,6 +59,8 @@ public class inicio extends AppCompatActivity {
                 roomRef.setValue(nombre);
                 PuntajeRef= database.getReference("rooms/" + nombSala + "/puntaje2");
                 PuntajeRef.setValue("guest : 0");
+                database.getReference("rooms/"+nombSala+"/perdida").setValue("c");
+
             }
         });
 

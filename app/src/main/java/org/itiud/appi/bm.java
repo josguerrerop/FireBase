@@ -7,6 +7,7 @@ import androidx.core.view.ViewCompat;
 import androidx.gridlayout.widget.GridLayout;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.itiud.appi.logica.BuscaMInas;
 import org.itiud.appi.logica.Celda;
+import org.itiud.appi.logica.DialogFragment;
 
 public class bm extends AppCompatActivity {
     Button button;
@@ -40,6 +42,8 @@ public class bm extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference messageRef;
     DatabaseReference PuntajeRef;
+    DatabaseReference Win;
+
     DatabaseReference Puntajes;
     private FirebaseUser user ;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -92,13 +96,15 @@ public class bm extends AppCompatActivity {
                 role="guest";
             }
         }
+
         playing();
 
         messageRef= database.getReference("rooms/" + roomName + "/message");
         message = role + ":Poked!";
+
+
         messageRef.setValue(message);
         AddRoomEventListener(true);
-
         Puntajes = database.getReference().child("rooms/" + roomName);
         Puntajes.addValueEventListener(new ValueEventListener() {
             @Override
@@ -122,8 +128,55 @@ public class bm extends AppCompatActivity {
             }
         });
 
+
+        Win =database.getReference().child("rooms/" + roomName);
+        Win.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String h = snapshot.child("perdida").getValue(String.class);
+                if(role.equals("guest") && h.equals("x")){
+                    DialogFragment dialog = new DialogFragment();
+                    dialog.message="GANASTE";
+                    dialog.show(getSupportFragmentManager(),"ok");
+                }
+
+                if(role.equals("host") && h.equals("y")){
+                    DialogFragment dialog = new DialogFragment();
+                    dialog.message="GANASTE";
+                    dialog.show(getSupportFragmentManager(),"ok");
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
 
+
+
+    private void PerdisteRefListener() {
+
+            if(role.equals("host") && !bm.isEnd()){
+                database.getReference("rooms/"+roomName+"/perdida").setValue("x");
+            DialogFragment dialog = new DialogFragment();
+            dialog.message="PERDISTE";
+            dialog.show(getSupportFragmentManager(),"ok");
+            }
+
+        if(role.equals("guest") && !bm.isEnd()){
+            database.getReference("rooms/"+roomName+"/perdida").setValue("y");
+            DialogFragment dialog = new DialogFragment();
+            dialog.message="PERDISTE";
+            dialog.show(getSupportFragmentManager(),"ok");
+        }
+
+
+    }
 
 
     private void AddRoomEventListener(boolean m) {
@@ -142,7 +195,7 @@ public class bm extends AppCompatActivity {
                     if(snapshot.getValue(String.class).contains("host:")){
                       move = true;
                       if(m) {
-                          Toast.makeText(bm.this, "Tu turno", Toast.LENGTH_SHORT).show();
+                          Toast.makeText(bm.this, "Tu turno" , Toast.LENGTH_SHORT).show();
                       }
                     }
                 }
@@ -171,7 +224,9 @@ public class bm extends AppCompatActivity {
 
     }
 
+
     public void playing(){
+        PerdisteRefListener();
         this.gridLayout.removeAllViews();
         this.celda = this.bm.getMatrix();
         boolean end = bm.isEnd();
@@ -220,9 +275,7 @@ public class bm extends AppCompatActivity {
                                         messageRef.setValue(message);
                                         AddRoomEventListener(false);
                                         playing();
-
                                     } else {
-
                                         Toast.makeText(getApplicationContext(), "YOU LOSE", Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
